@@ -17,4 +17,10 @@ It is important that you do download **all** of them, even if you don't "need" a
 If you've never ran templates with 010 Editor before, you may want to check out this quick guide: [Installing and running 010 Editor templates](https://jojomodding.miraheze.org/wiki/Guide:Installing_and_running_010_Editor_templates).
 
 ## Structure
-Like most file formats, XFBINs start with the magic `NUCC` (`4E 55 43 43`), and this is asserted with the library. Although XFBIN files can technically load into games fine without this "magic", the library requires it anyway to verify an XFBIN.
+Like most file formats, XFBINs start with the magic `NUCC` (`4E 55 43 43`), and this is **asserted** with the library. Although XFBIN files can technically load into games fine without this "magic", the library requires it anyway to verify.
+
+After the XFBIN version and flags is then the XFBIN metadata, which is an `nuccChunkIndex`. It's strange that this data is in its own chunk, considering it literally contains the information necessary to identify it in the first place, and as such, this is always expected to be the first chunk - as the games do as well.
+
+Then, are the rest of the chunks split into **pages** depending on `nuccChunkPage` chunks. These are structs that can be expanded to view focused data. Any data that is currently unrecognised is marked as such.
+
+The library will keep on reading an XFBIN until it reaches the end of the file, so it's important that the file is cut off properly without trailing data. That being said, although the template will error otherwise, it should still display whatever data it was able to parse before the trailing data.
