@@ -3,12 +3,12 @@
 //
 //      File: PlayerColorParam.bt
 //   Authors: Kojo Bailey
-//  Git Repo: https://github.com/KojoBailey/XFBIN-010-Binary-Templates
+//  Git Repo: https://github.com/KojoBailey/NUCC-010-Template-Library/
 //   Version: 1.0.0
 //   Purpose: Parsing CyberConnect2 NUCC PlayerColorParam files for easy hex editing.
 //  Category: Game
 //   History: 
-//      1.0.0 [2024/04/XX] Initial release.
+//      1.0.0 [2024/04/22] Initial release.
 //
 //--- For more info, refer to README.md
 //------------------------------------------------

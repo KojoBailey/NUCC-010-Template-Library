@@ -3,12 +3,12 @@
 //
 //      File: sndcmnparam.bt
 //   Authors: Kojo Bailey
-//  Git Repo: https://github.com/KojoBailey/XFBIN-010-Binary-Templates
-//   Version: 1.0.0
+//  Git Repo: https://github.com/KojoBailey/NUCC-010-Template-Library/
+//   Version: 0.9.0
 //   Purpose: Parsing CyberConnect2 NUCC sndcmnparam files for easy hex editing.
 //  Category: Game
 //   History: 
-//      1.0.0 [2024/04/XX] Initial release.
+//      0.9.0 [2024/04/22] Initial release.
 //
 //--- For more info, refer to README.md
 //------------------------------------------------

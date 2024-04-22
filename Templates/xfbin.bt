@@ -3,14 +3,14 @@
 //
 //      File: xfbin.bt
 //   Authors: Kojo Bailey
-//  Git Repo: https://github.com/KojoBailey/XFBIN-010-Binary-Templates
+//  Git Repo: https://github.com/KojoBailey/NUCC-010-Template-Library/
 //   Version: 1.0.0
 //   Purpose: Parsing binary data from CyberConnect2 XFBIN files for easy hex editing.
 //  Category: Game
 // File Mask: *.xfbin
 //  ID Bytes: 4E 55 43 43
 //   History: 
-//      1.0.0 [2024/04/XX] Initial release.
+//      1.0.0 [2024/04/22] Initial release. Should work on any XFBIN.
 //
 //--- For more info, refer to README.md
 //------------------------------------------------
