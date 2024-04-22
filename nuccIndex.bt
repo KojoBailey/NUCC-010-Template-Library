@@ -1,0 +1,133 @@
+#ifndef KOJO_NUCC_INDEX_BT
+#define KOJO_NUCC_INDEX_BT
+
+/* -- ↓ MAP FUNCTIONS ↓ -- */
+
+uint true_map_index(uint index) {
+    return Chunk_Meta.t_nuccIndex.Chunk_Map_Indices.chunk_map_index[index + running_chunk_map_offset];
+}
+
+uint get_type_index(uint index) {
+    return Chunk_Meta.t_nuccIndex.t_Chunk_Maps[true_map_index(index)].chunk_type_index;
+}
+uint get_path_index(uint index) {
+    return Chunk_Meta.t_nuccIndex.t_Chunk_Maps[true_map_index(index)].file_path_index;
+}
+uint get_name_index(uint index) {
+    return Chunk_Meta.t_nuccIndex.t_Chunk_Maps[true_map_index(index)].chunk_name_index;
+}
+
+string get_type(uint index) {
+    return Chunk_Meta.t_nuccIndex.Chunk_Types[get_type_index(index)].chunk_type;
+}
+string get_path(uint index) {
+    return Chunk_Meta.t_nuccIndex.File_Paths[get_path_index(index)].file_path;
+}
+string get_name(uint index) {
+    return Chunk_Meta.t_nuccIndex.Chunk_Names[get_name_index(index)].chunk_name;
+}
+
+string get_direct_type(uint index) {
+    return Chunk_Meta.t_nuccIndex.Chunk_Types[index].chunk_type;
+}
+string get_direct_path(uint index) {
+    return Chunk_Meta.t_nuccIndex.File_Paths[index].file_path;
+}
+string get_direct_name(uint index) {
+    return Chunk_Meta.t_nuccIndex.Chunk_Names[index].chunk_name;
+}
+
+uint get_map_start(uint index) {
+    return startof(Chunk_Meta.t_nuccIndex.t_Chunk_Maps[true_map_index(index)].chunk_type_index);
+}
+
+
+/* -- ↓ TYPEDEFS ↓ -- */
+
+typedef struct {
+    uint32 chunk_type_index <name = "Chunk Type Index", comment = get_direct_type, bgcolor = COL_DARK_RED>;
+    uint32 file_path_index <name = "File Path Index", comment = get_direct_path, bgcolor = COL_DARK_RED>;
+    uint32 chunk_name_index <name = "Chunk Name Index", comment = get_direct_name, bgcolor = COL_DARK_RED>;
+} Chunk_Maps <name = "Chunk Maps",
+    read = get_chunk_read(get_direct_type(chunk_type_index), get_direct_path(file_path_index), get_direct_name(chunk_name_index))>;
+
+
+/* -- ↓ MAIN STRUCT ↓ -- */
+
+struct nuccIndex {
+    SetBackColor(COL_TURQUOISE);
+    uint32 chunk_type_count <name = "Chunk Type Count">;
+    uint32 chunk_type_size <name = "Chunk Type Size">;
+    uint32 file_path_count <name = "File Path Count">;
+    uint32 file_path_size <name = "File Path Size">;
+    uint32 chunk_name_count <name = "Chunk Name Count">;
+    uint32 chunk_name_size <name = "Chunk Name Size">;
+    uint32 chunk_map_count <name = "Chunk Map Count">;
+    uint32 chunk_map_size <name = "Chunk Map Size">;
+    uint32 chunk_map_indices_count <name = "Chunk Map Indices Count">;
+    uint32 extra_map_indices_count <name = "Extra Map Indices Count">;
+
+    /* Chunk Types */ {
+        SetBackColor(COL_PURPLE);
+        struct {
+            string chunk_type <name = "Chunk Type">;
+        } Chunk_Types[chunk_type_count] <
+            name = "Chunk Types",
+            read = chunk_type,
+            optimize = false // If true, strings will have same lengths (bad).
+        >;
+    }
+    
+    /* File Paths */ {
+        SetBackColor(COL_GREEN);
+        struct {
+            string file_path <name = "Internal File Path">;
+        } File_Paths[file_path_count] <
+            name = "File Paths",
+            read = file_path,
+            optimize = false
+        >;
+    }
+
+    /* Chunk Names */ {
+        SetBackColor(COL_ORANGE);
+        struct {
+            string chunk_name <name = "Chunk Name">;
+        } Chunk_Names[chunk_name_count] <
+            name = "Chunk Names",
+            read = chunk_name,
+            optimize = false
+        >;
+    }
+
+    align_by(4);
+
+    /* Chunk Maps */ {
+        SetBackColor(COL_DARK_RED);
+        struct Chunk_Maps t_Chunk_Maps[chunk_map_count];
+    }
+
+    /* Extra Map Indices */ {
+        SetBackColor(COL_DARK_BLUE);
+        struct {
+            uint32 chunk_name_index <name = "Chunk Name Index">;
+            uint32 chunk_map_index <name = "Chunk Map Index">;
+        } Extra_Map_Indices[extra_map_indices_count] <
+            name = "Extra Map Indices"
+        >;
+    }
+
+    /* Chunk Map Index */ {
+        SetBackColor(COL_DARK_CYAN);
+        struct {
+            local int i;
+            for (i = 0; i < chunk_map_indices_count; i++) {
+                uint32 chunk_map_index <
+                    name = "Chunk Map Index"
+                >;
+            }
+        } Chunk_Map_Indices;
+    }
+};
+
+#endif // KOJO_NUCC_INDEX_BT

@@ -1,0 +1,41 @@
+#ifndef KOJO_FUNCTIONS
+#define KOJO_FUNCTIONS
+
+enum Colour {
+    COL_BLACK = 0,
+    COL_ORANGE = 0x0088FF,
+    COL_DARK_RED = 0x03036E,
+    COL_GREEN = 0x05A625,
+    COL_DARK_ORANGE = 0x0A7DC4,
+    COL_RED = 0x3333F5,
+    COL_DARK_CYAN = 0x595203,
+    COL_DARK_BLUE = 0x6E1103,
+    COL_PURPLE = 0xC40A6D,
+    COL_BLUE = 0xCE1A1A,
+    COL_PINK = 0xD850F7,
+    COL_TURQUOISE = 0xECD82A,
+    COL_LIGHT_PINK = 0xFFAAFF,
+};
+
+string get_magic_byte(char buffer) {
+    return Str("%s / %X", buffer, (byte)buffer);
+}
+
+/* Align position to multiple of 4. */
+void align_by(int factor) {
+    FSkip( factor - ( (FTell() - 1) % factor ) - 1);
+}
+
+string to_string(int integral) {
+    return Str("%d", integral);
+}
+
+string version_to_string(int version_number) {
+    string buffer = to_string(version_number);
+    if (buffer[2]) {
+        return Str("v%s.%s.%s", buffer[0], buffer[1], buffer[2]);
+    }
+    return Str("v0.%s.%s", buffer[0], buffer[1]);
+}
+
+#endif // KOJO_FUNCTIONS

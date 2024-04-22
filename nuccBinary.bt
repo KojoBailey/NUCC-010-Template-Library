@@ -1,0 +1,70 @@
+#ifndef KOJO_NUCC_BINARY_BT
+#define KOJO_NUCC_BINARY_BT
+
+#include "All-Star Battle R/PlayerColorParam.bt"
+#include "All-Star Battle R/sndcmnparam.bt"
+
+/** Replaces any version numbers with "XXX", 
+ *  for easier string comparison.
+ */
+string regex_path_version(string path) {
+    local int version_pos, regex_size;
+    version_pos = RegExSearch(path, "\\d{3}", regex_size);
+    if ( version_pos < 0 ) {
+        return path;
+    } else {
+        local int i;
+        local string buffer = path;
+        for (i = 0; i < 3; i++) {
+            buffer[version_pos + i] = 'X';
+        }
+        return buffer;
+    }
+}
+
+string get_binary_type(string path) {
+    switch (regex_path_version(path)) {
+        case "PlayerColorParam.bin": return "PlayerColorParam";
+        case "cmnparam/bin/XXX/battle.bin": return "sndcmnparam";
+        case "cmnparam/bin/XXX/commse0.bin": return "sndcmnparam";
+        case "cmnparam/bin/XXX/gimmick.bin": return "sndcmnparam";
+        case "cmnparam/bin/XXX/player.bin": return "sndcmnparam";
+        case "cmnparam/bin/XXX/sd01a_mob.bin": return "sndcmnparam";
+        case "cmnparam/bin/XXX/sd02a_mob.bin": return "sndcmnparam";
+        case "cmnparam/bin/XXX/sd03b_mob.bin": return "sndcmnparam";
+        case "cmnparam/bin/XXX/sd04a_mob.bin": return "sndcmnparam";
+        case "cmnparam/bin/XXX/sd04b_mob.bin": return "sndcmnparam";
+        case "cmnparam/bin/XXX/sd05a_mob.bin": return "sndcmnparam";
+        case "cmnparam/bin/XXX/sd06a_mob.bin": return "sndcmnparam";
+        case "cmnparam/bin/XXX/sd06b_mob.bin": return "sndcmnparam";
+        case "cmnparam/bin/XXX/sd07a_mob.bin": return "sndcmnparam";
+        case "cmnparam/bin/XXX/sd08a_mob.bin": return "sndcmnparam";
+        case "cmnparam/bin/XXX/pldata.bin": return "pldata";
+        default: return "unknown";
+    }
+}
+
+struct nuccBinary(string path) {
+    BigEndian();
+    uint32 size <name = "Size">;
+    local uint64 save_pos = FTell();
+    SetBackColor(COL_DARK_RED);
+    
+    switch (get_binary_type(path)) {
+        case "PlayerColorParam":
+            PlayerColorParam t_PlayerColorParam;
+            break;
+        case "sndcmnparam":
+            sndcmnparam t_sndcmnparam;
+            break;
+        case "pldata":
+            pldata t_pldata;
+            break;
+        default:
+            byte data[size] <name = "Unrecognised Data",
+                comment = "This template library doesn't currently support this data.">;
+    }
+    FSeek(save_pos + size);
+};
+
+#endif // KOJO_NUCC_BINARY_BT

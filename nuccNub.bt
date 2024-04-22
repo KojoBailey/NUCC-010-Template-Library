@@ -1,0 +1,74 @@
+#ifndef KOJO_NUCC_NUB_BT
+#define KOJO_NUCC_NUB_BT
+
+typedef struct {
+    uint32 unk;
+    uint32 unk;
+    uint16 unk;
+    uint16 unk;
+    
+    byte name_size <name = "Project Name Length">;
+    char name[name_size] <name = "Project Name">;  
+    uint32 unk; // Padding?
+    
+    uint32 unk;
+    
+    byte timestamp_size <name = "Timestamp Length">;
+    char timestamp[timestamp_size] <name = "Timestamp">;
+    align_by(4);
+} PROP <name = "Properties", read = name>;
+
+typedef struct {
+    uint32 unk;
+    uint32 unk;
+    
+    ubyte unk_size;
+    char unk_str[unk_size];
+    align_by(4);
+    uint32 unk;
+} BINF <name = "Binary File", read = unk_str>;
+
+typedef struct {
+    LittleEndian();
+    char magic[4] <name = "File Magic">;
+    uint32 size <name = "Size">;
+
+    struct {
+        char title[8] <name = "Title">;
+        uint32 size <name = "Size">;
+        uint32 count <name = "Count">;
+        
+        local int i;
+        for (i = 0; i < count; i++) {
+            struct {
+                char header[4] <name = "Section Header">;
+                uint32 size <name = "Section Size">;
+            } Entry <open = false, read = header>;
+        }
+    } toc <name = "Table of Contents">;
+
+
+    local int i;
+    for (i = 0; i < toc.count; i++) {
+        struct {
+            char title[4] <name = "Title">;
+            uint32 size <name = "Size">;
+            
+            switch (title) {
+                case "PROP": PROP t_PROP; break;
+                case "BINF": BINF t_BINF; break;
+                case "PACK": byte files[size] <name = "File Data">; break;
+                default: FSkip(size);
+            }
+        } section <name = "Section", read = title>;
+    }
+} NUB <name = "NUB Data">;
+
+struct nuccNub {
+    BigEndian();
+    uint32 size <name = "Size">;
+
+    NUB t_NUB;
+};
+
+#endif // KOJO_NUCC_NUB_BT

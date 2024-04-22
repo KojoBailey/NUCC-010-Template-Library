@@ -1,0 +1,74 @@
+//------------------------------------------------
+//--- 010 Editor v14.0.1 Binary Template
+//
+//      File: sndcmnparam.bt
+//   Authors: Kojo Bailey
+//  Git Repo: https://github.com/KojoBailey/XFBIN-010-Binary-Templates
+//   Version: 1.0.0
+//   Purpose: Parsing CyberConnect2 NUCC sndcmnparam files for easy hex editing.
+//  Category: Game
+//   History: 
+//      1.0.0 [2024/04/XX] Initial release.
+//
+//--- For more info, refer to README.md
+//------------------------------------------------
+
+#ifndef KOJO_NUCC_SNDCMNPARAM_BT
+#define KOJO_NUCC_SNDCMNPARAM_BT
+
+#ifdef KOJO_XFBIN_BT
+    #include "All-Star Battle R/asbr.bt"
+#else
+    #include "asbr.bt"
+    #define Hide_Pointers true
+#endif // KOJO_XFBIN_BT
+
+/** ↓ DEFINITIONS ↓ */
+
+typedef struct {
+    LittleEndian();
+    uint16 count <name = "Entry Count">;
+
+    local int i;
+    for (i = 0; i < count; i++ ) {
+        struct {
+            char id[32];
+        } Audio_IDs <name = "Audio ID", read = id>;
+    }
+} sndcmnparam <name = "sndcmnparam",
+    comment = "List of audio names.">;
+
+typedef struct {
+    LittleEndian();
+    uint16 count <name = "Entry Count">;
+
+    local int i;
+    for (i = 0; i < count; i++ ) {
+        struct {
+            char char_id[32] <name = "Character ID">;
+            char pl[32] <name = "Sound Effects File">;
+            char null1[32];
+            char spl[32] <name = "Special File">;
+            char spl_interaction[32] <name = "Special Interaction File">;
+            char ev[32] <name = "_ev File">;
+            struct {
+                float stand_index <name = "Stand Index">;
+                float unk2;
+                float unk3;
+                float entity;
+                float char_index <name = "Character Index">;
+            } Floats <read = Str("Character: %d | Stand: %d", char_index, stand_index)>;
+        } Entry <read = char_id, comment = get_char_name(Str(char_id))>;
+    }
+} pldata <name = "sndcmnparam: pldata",
+    comment = "TBD.">;
+
+/** ↑ DEFINITIONS ↑ */
+
+#ifndef KOJO_XFBIN_BT
+    BigEndian();
+    uint32 size <name = "Size">;
+    sndcmnparam t_sndcmnparam <open = true>;
+#endif // KOJO_XFBIN_BT
+
+#endif // KOJO_NUCC_SNDCMNPARAM_BT

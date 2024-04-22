@@ -1,0 +1,96 @@
+//------------------------------------------------
+//--- 010 Editor v14.0.1 Binary Template
+//
+//      File: xfbin.bt
+//   Authors: Kojo Bailey
+//  Git Repo: https://github.com/KojoBailey/XFBIN-010-Binary-Templates
+//   Version: 1.0.0
+//   Purpose: Parsing binary data from CyberConnect2 XFBIN files for easy hex editing.
+//  Category: Game
+// File Mask: *.xfbin
+//  ID Bytes: 4E 55 43 43
+//   History: 
+//      1.0.0 [2024/04/XX] Initial release.
+//
+//--- For more info, refer to README.md
+//------------------------------------------------
+#ifndef KOJO_XFBIN_BT
+#define KOJO_XFBIN_BT
+
+/* -- ↓ USER CONFIGURATIONS ↓ -- */
+#define Show_nuccChunkNull_Name false   // Default: `false`
+#define Show_nuccChunkPage_Name false   // Default: `false`
+#define Hide_Pointers           true    // Default: `true`
+
+#include "functions.bt"
+#include "nuccChunk.bt"
+
+/* -- ↓ XFBIN HEADER ↓ -- */
+SetBackColor(COL_PINK);
+BigEndian();
+
+char magic[4] <
+    name = "File Magic", 
+    comment = "Should be `NUCC` for XFBIN files."
+>;
+Assert(magic == "NUCC", "Magic `NUCC` not found. File is either encrypted or not an XFBIN.");
+
+uint32 xfbin_version <
+    name = "XFBIN Version", 
+    comment = version_to_string
+>;
+
+string get_flag(char& flag) {
+    local uint64 save_pos;
+    if (flag == 0) return "0";
+    FSeek(startof(flag));
+    local string buffer = ReadString(FTell(), 2);
+    FSeek(save_pos);
+    return buffer;
+}
+struct {
+    int16 unk00;
+    char language[2] <name = "Language ID", comment = "No idea what this is used for.">;
+    int16 unk04 <comment = "Something to do with encryption perhaps.">;
+    int16 unk06;
+} flags <read = Str("%d | %s | %d | %d", unk00, get_flag(language[0]), unk04, unk06)>;
+
+if (FEof()) return "XFBIN has no chunks.";
+
+/* -- ↓ NUCC CHUNKS ↓ -- */
+SetBackColor(COL_RED);
+
+int set_chunk_col(string type) {
+    if (type == "nuccChunkNull" || type == "nuccChunkPage") return COL_BLACK;
+    return COL_RED;
+}
+
+local uint32 running_chunk_map_offset, running_extra_map_offset;
+
+local int i = 0;
+local int page = 0;
+
+// nuccChunkIndex for the first chunk.
+nuccChunk Chunk_Meta(i++) <
+    name = "nuccChunk : Metadata", 
+    read = get_chunk_read(type, path, name)
+>;
+
+struct {
+    while (!FEof()) {
+        struct {
+            local string page_read;
+            while (page == 0 && !FEof()) {
+                nuccChunk t_nuccChunk(i++) <
+                    name = "nuccChunk", 
+                    read = get_chunk_read(type, path, name),
+                    comment = path,
+                    bgcolor = set_chunk_col(type)
+                >;
+            }
+        } Page <read = page_read>;
+        page = 0;
+    }
+} Pages;
+
+#endif // KOJO_XFBIN_BT

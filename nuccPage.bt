@@ -1,0 +1,19 @@
+#ifndef KOJO_NUCC_PAGE_BT
+#define KOJO_NUCC_PAGE_BT
+
+string nuccPageREAD() {
+    return Str("%d, %d", chunk_map_offset, extra_map_offset);
+}
+
+struct nuccPage {
+    BigEndian();
+    SetBackColor(COL_ORANGE);
+    uint32 chunk_map_offset <name = "Chunk Map Offset">;
+    SetBackColor(COL_GREEN);
+    uint32 extra_map_offset <name = "Extra Map Offset">;
+    running_chunk_map_offset += chunk_map_offset;
+    running_extra_map_offset += extra_map_offset;
+    page = 1;
+};
+
+#endif // KOJO_NUCC_PAGE_BT

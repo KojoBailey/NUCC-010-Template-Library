@@ -1,0 +1,114 @@
+//------------------------------------------------
+//--- 010 Editor v14.0.1 Binary Template
+//
+//      File: PlayerColorParam.bt
+//   Authors: Kojo Bailey
+//  Git Repo: https://github.com/KojoBailey/XFBIN-010-Binary-Templates
+//   Version: 1.0.0
+//   Purpose: Parsing CyberConnect2 NUCC PlayerColorParam files for easy hex editing.
+//  Category: Game
+//   History: 
+//      1.0.0 [2024/04/XX] Initial release.
+//
+//--- For more info, refer to README.md
+//------------------------------------------------
+
+#ifndef KOJO_NUCC_PLAYERCOLORPARAM_BT
+#define KOJO_NUCC_PLAYERCOLORPARAM_BT
+
+#ifdef KOJO_XFBIN_BT
+    #include "All-Star Battle R/asbr.bt"
+#else
+    #include "asbr.bt"
+    #define Hide_Pointers true
+#endif // KOJO_XFBIN_BT
+
+/** ↓ DEFINITIONS ↓ */
+
+enum<byte> Tint {
+    TA = 0, TB, TC, TD, TE, TF
+};
+
+string get_entry_read(string costume_id, byte tint) {
+    return Str("%scol%d", costume_id, tint);
+}
+
+string get_entry_comment(string char_id, Costume costume_index, Tint tint) {
+    local string costume;
+    if (costume_index == DEFAULT) {
+        costume = "Default";
+    } else {
+        costume = "Special " + EnumToString(costume_index);
+    }
+    local string tint_str = EnumToString(tint);
+    return Str("%s %s Tint %s", get_char_name(char_id), costume, tint_str[1]);
+}
+
+typedef struct {
+    LittleEndian();
+    uint32 version <name = "Version">;
+    uint32 count <name = "Entry Count">;
+    uint64 first_pointer <name = "First Pointer", comment = "Useful for leaving notes.">;
+    char notes[first_pointer - 8] <name = "Notes", comment = "Note length depends on size of First Pointer.">;
+
+    struct {
+        local struct {
+            string costume = "";
+            byte tint = 0;
+        } Tint_Tracker[count];
+
+        local uint i;
+        local uint64 save_pos;
+        for (i = 0; i < count; i++) {
+            struct {
+                uint64 pointer <name = "Pointer", hidden = Hide_Pointers>;
+                save_pos = FTell();
+                FSeek(save_pos + pointer - 8);
+                string char_id <name = "Character ID", comment = get_char_name>;
+                FSeek(save_pos);
+
+                Costume costume_index <name = "Costume Index">;
+
+                local int j;
+                local int tint_save = 0;
+                local string costume_id = Str("%s%d%s", SubStr(char_id, 0, 4), costume_index, char_id[5]);
+                for (j = 0; Tint_Tracker[j].costume != ""; j++) {
+                    if (Tint_Tracker[j].costume == costume_id) {
+                        Tint_Tracker[j].tint++;
+                        tint_save = Tint_Tracker[j].tint;
+                        break;
+                    }
+                }
+                if (Tint_Tracker[j].costume == "")
+                    Tint_Tracker[j].costume = costume_id;
+
+                local uint32 rgb;
+                struct {
+                    uint32 r <name= "Red", comment = Str("%Xh", this)>;
+                    uint32 g <name= "Green", comment = Str("%Xh", this)>;
+                    uint32 b <name= "Blue", comment = Str("%Xh", this)>;
+                    rgb = (b << 16) + (g << 8) + r;
+                } RGB <
+                    read = Str("%d, %d, %d", r, g, b),
+                    name = "Red, Green, Blue",
+                    comment = Str("#%X%X%X ~ Text colour reflects the in-game colour.", r, g, b)
+                >;
+            } Entry <
+                bgcolor = rgb, fgcolor = rgb,
+                read = get_entry_read(costume_id, tint_save),
+                comment = get_entry_comment(char_id, costume_index, tint_save)
+            >;
+        }
+    } Entries;
+} PlayerColorParam <name = "PlayerColorParam",
+    comment = "Colours for the Character Select costume/tint select menu.">;
+
+/** ↑ DEFINITIONS ↑ */
+
+#ifndef KOJO_XFBIN_BT
+    BigEndian();
+    uint32 size <name = "Size">;
+    PlayerColorParam t_PlayerColorParam <open = true>;
+#endif // KOJO_XFBIN_BT
+
+#endif // KOJO_NUCC_PLAYERCOLORPARAM_BT

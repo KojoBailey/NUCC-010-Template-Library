@@ -1,0 +1,87 @@
+#ifndef KOJO_NUCC_CHUNK_BT
+#define KOJO_NUCC_CHUNK_BT
+
+#include "nuccIndex.bt"
+#include "nuccPage.bt"
+#include "nuccBinary.bt"
+#include "nuccTexture.bt"
+#include "nuccNub.bt"
+
+/* -- ↓ CHUNK FUNCTIONS ↓ -- */
+
+string get_chunk_read(string type, string path, string name) {
+    if (type == "nuccChunkNull" && Show_nuccChunkNull_Name == 0) return "";
+    if (type == "nuccChunkPage" && Show_nuccChunkPage_Name == 0) return "";
+    if (name == "") return type;
+    return Str("%s [%s]", name, type);
+}
+
+struct nuccUnknown(uint size) {
+    byte data[size] <name = "Unknown Data">;
+};
+
+
+/* -- ↓ MAIN STRUCT ↓ -- */
+
+struct nuccChunk(int i) {
+    BigEndian();
+    local string type;
+    local string path;
+    local string name;
+
+    uint32 size <name = "Size">;
+    uint32 map_index <name = "Map Index">;
+    uint16 version <name = "Version", comment = version_to_string>;
+    uint16 unk;
+
+    // Assumed to be nuccChunkIndex if first chunk (not really any way to get around this).
+    if (i > 0) {
+        type = get_type(map_index);
+        path = get_path(map_index);
+        name = get_name(map_index);
+
+        if (type != "nuccChunkPage" && type != "nuccChunkNull") {
+            page_read = get_chunk_read(type, path, name);
+        }
+
+        local uint save_pos = FTell();
+        FSeek(get_map_start(map_index));
+        struct Chunk_Maps t_Chunk_Map;
+        FSeek(save_pos);
+        
+        switch (type) {
+            case "nuccChunkPage":
+                SetBackColor(COL_ORANGE);
+                nuccPage t_nuccPage <name = "nuccPage", read = nuccPageREAD(),
+                    comment = "Marks the end of a page of chunks. Something to do with nuccClumps.">;
+                break;
+            case "nuccChunkBinary":
+                SetBackColor(COL_ORANGE);
+                nuccBinary t_nuccBinary(path) <name = "nuccBinary",
+                    comment = "Stores miscellaneous binary data, including formats like XML.">;
+                break;
+            case "nuccChunkTexture":
+                SetBackColor(COL_BLUE);
+                nuccTexture t_nuccTexture <name = "nuccTexture", read = nuccTextureREAD(),
+                    comment = "Stores NUCC textures, like NUT, but can also store uncontained images.">;
+                break;
+            case "nuccChunkNub":
+                SetBackColor(COL_LIGHT_PINK);
+                nuccNub t_nuccNub <name = "nuccNub",
+                    comment = "Stores NUB audio data.">;
+                break;
+            case "nuccChunkNull": break; // Removes annoying empty struct warnings.
+            default: 
+                SetBackColor(COL_DARK_RED);
+                nuccUnknown t_nuccUnknown(size) <name = "nuccUnknown",
+                    comment = "Currently unsupported.">;
+        }
+    } else {
+        type = "nuccChunkIndex";
+        path = "";
+        name = "index";
+        nuccIndex t_nuccIndex <name = "nuccIndex", comment = "Contains meta-information on all the chunks, including itself.">;
+    }
+};
+
+#endif // KOJO_NUCC_CHUNK_BT

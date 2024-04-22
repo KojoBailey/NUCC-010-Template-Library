@@ -1,0 +1,50 @@
+#ifndef KOJO_NTP3_NUT_BT
+#define KOJO_NTP3_NUT_BT
+
+enum <uint16> Pixel_Format {
+    DXT1 = 0,
+    DXT3 = 1,
+    DXT5 = 2
+};
+
+typedef struct {
+    SetBackColor(COL_ORANGE);
+    uint64 total_size <name = "Total Size">;
+    uint64 data_size <name = "Data Size">;
+    uint16 header_size <name = "Header Size">;
+    uint32 mipmap_count <name = "Mipmap Count">;
+    Pixel_Format pixel_format <name = "Pixel Format">;
+    uint16 width <name = "Width">;
+    uint16 height <name = "Height">;
+
+    FSkip(6 * 4); // this differs
+    char eXt[4];
+    uint32 unk38, unk3C, unk40;
+    char GIDX[4];
+    uint32 unk48;
+    uint32 hash_id <name = "Hash ID">;
+    uint32 unk50;
+    
+    SetBackColor(COL_PURPLE);
+    byte data[data_size] <name = "Texture Data">;
+} Texture <name = "NUT Texture", read = Str("Dimensions: %dx%d", width, height)>;
+
+typedef struct {
+    BigEndian();
+    SetBackColor(COL_GREEN);
+    char magic[4] <name = "File Magic", comment = "Should be NTP3 for XFBINs.">;
+    Assert(magic == "NTP3", "Magic `NTP3` not found.");
+    uint16 version <name = "Version">;
+    uint16 count <name = "Count">;
+    uint32 unk08;
+
+    Texture t_Texture;
+} NUT <name = "NUT", read = Str("Count: %d", count)>;
+
+#ifdef KOJO_NUCC_TEXTURE_BT
+#else
+    #include "functions.bt"
+    NUT t_NUT;
+#endif
+
+#endif // KOJO_NTP3_NUT_BT

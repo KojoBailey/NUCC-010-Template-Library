@@ -1,0 +1,75 @@
+#ifndef ASBR_BT
+#define ASBR_BT
+
+string get_char_name(string char_id) {
+    switch (char_id) {
+        case "1jnt01": return "Jonathan Joestar";
+        case "1zpl01": return "Will A. Zeppeli";
+        case "1dio01": return "Dio Brando";
+        case "1sdw01": return "Robert E. O. Speedwagon";
+        case "2jsp01": return "Joseph Joestar";
+        case "2csr01": return "Caesar Anthonio Zeppeli";
+        case "2lsa01": return "Lisa Lisa";
+        case "2wmu01": return "Wamuu";
+        case "2esd01": return "Esidisi";
+        case "2krs01": return "Kars";
+        case "3jtr01": return "Jotaro Kujo";
+        case "3abd01": return "Muhammad Avdol";
+        case "3kki01": return "Noriaki Kakyoin";
+        case "3pln01": return "Jean Pierre Polnareff";
+        case "3jsp01": return "Old Joseph Joestar";
+        case "3igy01": return "Iggy";
+        case "3hhs01": return "Hol Horse";
+        case "3vni01": return "Vanilla Ice";
+        case "3dio01": return "DIO";
+        case "3mra01": return "Mariah";
+        case "3psp01": return "Pet Shop";
+        case "4jsk01": return "Josuke Higashikata 4";
+        case "4jtr01": return "Jotaro Kujo (Part 4)";
+        case "4koi01": return "Koichi Hirose";
+        case "4oky01": return "Okuyasu Nijimura";
+        case "4rhn01": return "Kishibe Rohan";
+        case "4oti01": return "Akira Otoishi";
+        case "4kir01": return "Yoshikage Kira";
+        case "4sgc01": return "Shigekiyo Yangu (Shigechi)";
+        case "4kwk01": return "Kosaku Kawajiri";
+        case "4ykk01": return "Yukako Yamagishi";
+        case "5grn01": return "Giorno Giovanna";
+        case "5bct01": return "Bruno Bucciarati";
+        case "5mst01": return "Guido Mista";
+        case "5nrc01": return "Narancia Ghirga";
+        case "5fgo01": return "Pannacotta Fugo";
+        case "5dvl01": return "Diavolo";
+        case "5trs01": return "Trish Una";
+        case "5gac01": return "Ghiaccio";
+        case "5prs01": return "Prosciutto & Pesci";
+        case "6jln01": return "Jolyne Cujoh";
+        case "6elm01": return "Ermes Costello";
+        case "6ans01": return "Narciso Anasui";
+        case "6pci01": return "Enrico Pucci (Final)";
+        case "6pci02": return "Enrico Pucci (Whitesnake)";
+        case "6wet01": return "Weather Report";
+        case "6fit01": return "Foo Fighters";
+        case "7jny01": return "Johnny Joestar";
+        case "7jir01": return "Gyro Zeppeli";
+        case "7vtn01": return "Funny Valentine";
+        case "7dio01": return "Diego Brando";
+        case "8jsk01": return "Josuke Higashikata 8";
+        case "0bao01": return "Ikuro Hashizawa (Baoh)";
+        case "5ris01": return "Risotto Nero";
+        case "2shm01": return "Rudol von Stroheim";
+        case "4kch01": return "Keicho Nijimura";
+        case "7dio02": return "Parallel World Diego";
+        case "5abc01": return "Leone Abbacchio";
+        case "4fgm01": return "Yuya Fungami";
+        case "8wou01": return "Wonder of U";
+        default: return "Unrecognised Character";
+    }
+}
+
+enum<uint32> Costume {
+    DEFAULT = 0,
+    A, B, C, D, E, F, G, H, I
+};
+
+#endif // ASBR_BT
