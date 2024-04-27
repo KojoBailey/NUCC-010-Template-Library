@@ -20,6 +20,11 @@ struct nuccUnknown(uint size) {
     byte data[size] <name = "Unknown Data">;
 };
 
+struct nuccCamera {
+    uint32 unk00;
+    float focal_length <name = "Focal Length">;
+};
+
 
 /* -- ↓ MAIN STRUCT ↓ -- */
 
@@ -64,6 +69,11 @@ struct nuccChunk(int i) {
                 SetBackColor(COL_BLUE);
                 nuccTexture t_nuccTexture <name = "nuccTexture", read = nuccTextureREAD(),
                     comment = "Stores NUCC textures, like NUT, but can also store uncontained images.">;
+                break;
+            case "nuccChunkCamera":
+                SetBackColor(COL_BLUE);
+                nuccCamera t_nuccCamera <name = "nuccCamera", read = focal_length,
+                    comment = "Something camera-related.">;
                 break;
             case "nuccChunkNub":
                 SetBackColor(COL_LIGHT_PINK);

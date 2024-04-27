@@ -10,12 +10,13 @@ string nuccTextureREAD() {
 typedef struct {
     BigEndian();
     uint16 unk00;
-    uint16 width <name = "uint16 Width">;
-    uint16 height <name = "uint16 Height">;
+    uint16 width <name = "Width">;
+    uint16 height <name = "Height">;
     uint16 unk06;
-    uint32 size <name = "uint32 Size">;
+    uint32 size <name = "Size">;
 
-    NUT t_NUT;
+    // NUT t_NUT;
+    byte data[size] <name = "Data">;
 } nuccTexture;
 
 #endif // KOJO_NUCC_TEXTURE_BT
