@@ -1,0 +1,220 @@
+#ifndef KOJO_NUCC_ANM_BT
+#define KOJO_NUCC_ANM_BT
+
+#ifndef KOJO_XFBIN_BT
+    #include "functions.bt"
+#endif
+
+typedef struct {
+    BigEndian();
+    uint32 length <name = "Animation Length">;
+    uint32 frame_size <name = "Frame Size">;
+    uint16 entry_count <name = "Entry Count">;
+    bool16 loop <name = "Loop">;
+    uint16 clump_count <name = "Clump Count">;
+    uint16 other_entry_count <name = "Other Entry Count">;
+    uint32 coord_count <name = "Coord Count">;
+
+    struct {
+        local int i;
+        for (i = 0; i < clump_count; i++) {
+            struct {
+                uint32 clump_index <name = "Clump Index">;
+                uint16 bone_material_count <name = "Bone Material Count">;
+                uint16 model_count <name = "Model Count">;
+
+                if (bone_material_count > 0) {
+                    struct {
+                        local int j;
+                        for (j = 0; j < bone_material_count; j++) {
+                            uint32 bone_material_index <name = "Bone Material Index">;
+                        }
+                    } Bone_Material_Indices <name = "Bone Material Indices">;
+                }
+
+                if (model_count > 0) {
+                    struct {
+                        local int j;
+                        for (j = 0; j < model_count; j++) {
+                            uint32 model_index <name = "Model Index">;
+                        }
+                    } Model_Indices <name = "Model Indices">;
+                }
+            } Clump;
+        }
+    } Clumps;
+
+    if (other_entry_count > 0) {
+        struct {
+            local int i;
+            for (i = 0; i < other_entry_count; i++) {
+                uint32 other_entry_chunk_index <name = "Other Entry Chunk Index">;
+            }
+        } OtherEntryChunkIndices <name = "Other Entry Indices">;
+    }
+
+    struct {
+        local int i;
+        for (i = 0; i < coord_count; i++) {
+            struct {
+                struct {
+                    uint16 clump_index <name = "Clump Index">;
+                    uint16 coord_index <name = "Coord Index">;
+                } Coord_Parent <name = "Coord Parent">;
+
+                struct {
+                    uint16 clump_index <name = "Clump Index">;
+                    uint16 coord_index <name = "Coord Index">;
+                } Coord_Child <name = "Coord Child">;
+            } Coord_Family <name = "Coord Family">;
+        }
+    } Coords;
+
+    struct {
+        if (entry_count > 0) {
+            local int i;
+            for (i = 0; i < entry_count; i++) {
+                struct {
+                    struct {
+                        uint16 clump_index <name = "Clump Index">;
+                        uint16 coord_index <name = "Coord Index">;
+                    } Indices;
+
+                    uint16 format <name = "Format">;
+                    uint16 curve_count <name = "Curve Count">;
+
+                    struct {
+                        if (curve_count > 0) {
+                            local int j;
+                            for (j = 0; j < curve_count; j++) {
+                                struct {
+                                    uint16 curve_index <name = "Curve Index">;
+                                    uint16 curve_format <name = "Curve Format">;
+                                    uint16 frame_count <name = "Frame Count">;
+                                    uint16 flags <name = "Flags">;
+                                } Curve_Header <name = "Curve Header">;
+                            }
+                        }
+                    } Curve_Headers <name = "Curve Headers">;
+
+                    if (curve_count > 0) {
+                        struct {
+                            local int j;
+                            for (j = 0; j < curve_count; j++) {
+                                struct {
+                                    switch (Curve_Headers.Curve_Header[j].curve_format) {
+                                        case 0x05:
+                                        case 0x08:
+                                        case 0x15:
+                                            local int k;
+                                            for (k = 0; k < Curve_Headers.Curve_Header[j].frame_count; k++) {
+                                                struct {
+                                                    float x <name = "X">;
+                                                    float y <name = "Y">;
+                                                    float z <name = "Z">;
+                                                } Vector3 <name = "Vector3">;
+                                            }
+                                            break;
+                                        case 0x06:
+                                            local int k;
+                                            for (k = 0; k < Curve_Headers.Curve_Header[j].frame_count; k++) {
+                                                struct {
+                                                    int32 frame <name = "Frame">;
+                                                    float x <name = "X">;
+                                                    float y <name = "Y">;
+                                                    float z <name = "Z">;
+                                                } Keyframe_Vector3 <name = "Keyframe Vector3">;
+                                            }
+                                            break;
+                                        case 0x0A:
+                                            local int k;
+                                            for (k = 0; k < Curve_Headers.Curve_Header[j].frame_count; k++) {
+                                                struct {
+                                                    int32 frame <name = "Frame">;
+                                                    float x <name = "X">;
+                                                    float y <name = "Y">;
+                                                    float z <name = "Z">;
+                                                    float w <name = "W">;
+                                                } Keyframe_Vector4 <name = "Keyframe Vector4">;
+                                            }
+                                            break;
+                                        case 0x0B:
+                                        case 0x16:
+                                        case 0x18:
+                                            local int k;
+                                            for (k = 0; k < Curve_Headers.Curve_Header[j].frame_count; k++) {
+                                                float curve <name = "Curve">;
+                                            }
+                                            break;
+                                        case 0x0C:
+                                            local int k;
+                                            for (k = 0; k < Curve_Headers.Curve_Header[j].frame_count; k++) {
+                                                struct {
+                                                    int32 frame <name = "Frame">;
+                                                    float curve <name = "Curve">;
+                                                } Keyframe_Float <name = "Keyframe Float">;
+                                            }
+                                            break;
+                                        case 0x0F:
+                                            local int k;
+                                            for (k = 0; k < Curve_Headers.Curve_Header[j].frame_count; k++) {
+                                                int16 curve;
+                                            }
+                                            align_by(4);
+                                            break;
+                                        case 0x10:
+                                            local int k;
+                                            for (k = 0; k < Curve_Headers.Curve_Header[j].frame_count; k++) {
+                                                struct {
+                                                    int16 x <name = "X">;
+                                                    int16 y <name = "Y">;
+                                                    int16 z <name = "Z">;
+                                                } Vector3_Short <name = "Vector3 Short">;
+                                            }
+                                            align_by(4);
+                                            break;
+                                        case 0x11:
+                                            local int k;
+                                            for (k = 0; k < Curve_Headers.Curve_Header[j].frame_count; k++) {
+                                                struct {
+                                                    int16 x <name = "X">;
+                                                    int16 y <name = "Y">;
+                                                    int16 z <name = "Z">;
+                                                    int16 w <name = "W">;
+                                                } Vector4_Short <name = "Vector4 Short">;
+                                            }
+                                            break;
+                                        case 0x14:
+                                            local int k;
+                                            for (k = 0; k < Curve_Headers.Curve_Header[j].frame_count; k++) {
+                                                struct {
+                                                    ubyte r <name = "R">;
+                                                    ubyte g <name = "G">;
+                                                    ubyte b <name = "B">;
+                                                } RGB <name = "RGB">;
+                                            }
+                                            align_by(4);
+                                            break;
+                                        case 0x1D:
+                                            local int k;
+                                            for (k = 0; k < Curve_Headers.Curve_Header[j].frame_count; k++) {
+                                                int16 x <name = "X">;
+                                            }
+                                            align_by(4);
+                                            break;
+                                    }
+                                } Curve;
+                            }
+                        } Curves <name = "Curves">;
+                    }
+                } Entry;
+            }
+        }
+    } Entries;
+} nuccAnm <name = "nuccAnm">;
+
+#ifndef KOJO_XFBIN_BT
+    nuccAnm t_nuccAnm;
+#endif
+
+#endif // KOJO_NUCC_ANM_BT

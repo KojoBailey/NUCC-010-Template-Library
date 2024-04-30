@@ -5,6 +5,7 @@
 #include "nuccPage.bt"
 #include "nuccBinary.bt"
 #include "nuccTexture.bt"
+#include "nuccAnm.bt"
 #include "nuccNub.bt"
 
 /* -- ↓ CHUNK FUNCTIONS ↓ -- */
@@ -49,10 +50,7 @@ struct nuccChunk(int i) {
             page_read = get_chunk_read(type, path, name);
         }
 
-        local uint save_pos = FTell();
-        FSeek(get_map_start(map_index));
-        struct Chunk_Maps t_Chunk_Map;
-        FSeek(save_pos);
+        define_map(map_index);
         
         switch (type) {
             case "nuccChunkPage":
@@ -69,6 +67,9 @@ struct nuccChunk(int i) {
                 SetBackColor(COL_BLUE);
                 nuccTexture t_nuccTexture <name = "nuccTexture", read = nuccTextureREAD(),
                     comment = "Stores NUCC textures, like NUT, but can also store uncontained images.">;
+                break;
+            case "nuccChunkAnm":
+                nuccAnm t_nuccAnm <comment = "Stores animation data, 2D and 3D.">;
                 break;
             case "nuccChunkCamera":
                 SetBackColor(COL_BLUE);

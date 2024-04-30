@@ -3,6 +3,13 @@
 
 /* -- ↓ MAP FUNCTIONS ↓ -- */
 
+void define_map(uint32 map_index) {
+    local uint save_pos = FTell();
+    FSeek(get_map_start(map_index));
+    struct Chunk_Maps t_Chunk_Map;
+    FSeek(save_pos);
+}
+
 uint true_map_index(uint index) {
     return Chunk_Meta.t_nuccIndex.Chunk_Map_Indices.chunk_map_index[index + running_chunk_map_offset];
 }

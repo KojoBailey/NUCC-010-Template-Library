@@ -17,6 +17,11 @@ enum Colour {
     COL_LIGHT_PINK = 0xFFAAFF,
 };
 
+enum<uint16> bool16 {
+    _false = 0,
+    _true = 1
+};
+
 string get_magic_byte(char buffer) {
     return Str("%s / %X", buffer, (byte)buffer);
 }

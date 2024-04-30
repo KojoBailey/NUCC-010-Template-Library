@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "*.bt": "c",
+        "nuccanm": "c",
+        "chrono": "c",
+        "system_error": "c",
+        "xlocale": "c",
+        "istream": "c"
+    }
+}
