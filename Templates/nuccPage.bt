@@ -1,6 +1,10 @@
 #ifndef KOJO_NUCC_PAGE_BT
 #define KOJO_NUCC_PAGE_BT
 
+#ifndef KOJO_XFBIN_BT
+    #include "functions.bt"
+#endif
+
 string nuccPageREAD() {
     return Str("%d, %d", chunk_map_offset, extra_map_offset);
 }

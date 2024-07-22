@@ -1,0 +1,59 @@
+//------------------------------------------------
+//--- 010 Editor v14.0.1 Binary Template
+//
+//      File: prm_load.bt
+//   Authors: Kojo Bailey
+//  Git Repo: https://github.com/KojoBailey/NUCC-010-Template-Library/
+//   Version: 1.0.0
+//   Purpose: Parsing CyberConnect2 NUCC prm_load files for easy hex editing.
+//  Category: Game
+//   History: 
+//      1.0.0 [2024/05/14] Initial release.
+//
+//--- For more info, refer to README.md
+//------------------------------------------------
+
+#ifndef KOJO_NUCC_PRM_LOAD_BT
+#define KOJO_NUCC_PRM_LOAD_BT
+
+/** ↓ DEFINITIONS ↓ */
+
+string get_comment(uint32 type) {
+    switch (type) {
+        case 9: return "Character models.";
+        case 10: return "Accessories.";
+        case 11: return "Effecs.";
+        case 3: return "Animations.";
+        case 6: return "Great Heat Attack data.";
+        case 13: return "PRM data.";
+        case 14: return "Misc binary data.";
+        default: return "Empty or unknown.";
+    }
+}
+
+typedef struct {
+    LittleEndian();
+    uint32 count <name = "Entry Count">;
+    
+    local int i;
+    for (i = 0; i < count; i++) {
+        struct {
+            char folder[32] <name = "Directory", comment = "Folder within the data folder where the XFBIN is kept.">;
+            char xfbin[32] <name = "XFBIN file", comment = "XFBIN file to load, although without file extension.">;
+            uint32 type <name = "Type", comment = get_comment>;
+            uint32 unk2;
+        } Entry <read = Str("%s/%s.xfbin", folder, xfbin), comment = get_comment(type)>;
+    }
+
+} prm_load <name = "prm_load",
+    comment = "">;
+
+/** ↑ DEFINITIONS ↑ */
+
+#ifndef KOJO_XFBIN_BT
+    BigEndian();
+    uint32 size <name = "Size">;
+    prm_load t_prm_load <open = true>;
+#endif // KOJO_XFBIN_BT
+
+#endif // KOJO_NUCC_PRM_LOAD_BT

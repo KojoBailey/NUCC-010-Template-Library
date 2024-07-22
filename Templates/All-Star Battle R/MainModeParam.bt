@@ -1,0 +1,232 @@
+//------------------------------------------------
+//--- 010 Editor v14.0.1 Binary Template
+//
+//      File: MainModeParam.bt
+//   Authors: Kojo Bailey
+//  Git Repo: https://github.com/KojoBailey/NUCC-010-Template-Library/
+//   Version: 1.0.0
+//   Purpose: Parsing CyberConnect2 NUCC MainModeParam files for easy hex editing.
+//  Category: Game
+//   History: 
+//      1.0.0 [2024/07/22] Initial release.
+//
+//--- For more info, refer to README.md
+//------------------------------------------------
+
+#ifndef KOJO_NUCC_MAINMODEPARAM_BT
+#define KOJO_NUCC_MAINMODEPARAM_BT
+
+#ifdef KOJO_XFBIN_BT
+    #include "All-Star Battle R/asbr.bt"
+#else
+    #include "asbr.bt"
+    #define Hide_Pointers true
+#endif // KOJO_XFBIN_BT
+
+/** ↓ DEFINITIONS ↓ */
+
+string Get_Panel_Type(int type) {
+    switch (type) {
+        case 0: return "Normal";
+        case 1: return "Extra";
+        case 2: return "Boss";
+        default: return "DOMAIN_ERROR";
+    }
+}
+
+void Follow_Pointer(uint64& save_pos) {
+    uint64 pointer <name = "Pointer", hidden = Hide_Pointers>;
+    save_pos = FTell();
+    FSeek(save_pos + pointer - 8);
+}
+
+typedef struct {
+    LittleEndian();
+    uint32 version <name = "Version">;
+    uint32 count <name = "Entry Count">;
+    uint64 first_pointer <name = "First Pointer", comment = "Useful for leaving notes.">;
+    char notes[first_pointer - 8] <name = "Notes", comment = "Note length depends on size of First Pointer.">;
+
+    struct {
+        local uint i;
+        local int save_page;
+        local uint64 save_pos;
+        for (save_page = 0; save_page < count / 8; save_page++) {
+            struct {
+                for ( i = 0; i < 8; i++) {
+                    struct {
+                        struct {
+                            uint64 part <name = "Part">;
+                    
+                            Follow_Pointer(save_pos);
+                            string panel_id <name = "Panel ID">;
+                            FSeek(save_pos);
+                            
+                            uint64 page <name = "Page">;
+                            
+                            Follow_Pointer(save_pos);
+                            string boss_panel_id <name = "Boss Panel ID">;
+                            FSeek(save_pos);
+                            
+                            uint64 unk1 <hidden = true>, unk2 <hidden = true>;
+                            
+                            uint32 gold_reward <name = "Gold Reward", comment = "Gold earned from winning the battle.">;
+                            uint32 type <name = "Type", comment = Get_Panel_Type>;
+                            
+                            Follow_Pointer(save_pos);
+                            string panel_up <name = " Above Panel ID">;
+                            FSeek(save_pos);
+                            
+                            Follow_Pointer(save_pos);
+                            string panel_down <name = "Below Panel ID">;
+                            FSeek(save_pos);
+                            
+                            Follow_Pointer(save_pos);
+                            string panel_left <name = "Left Panel ID">;
+                            FSeek(save_pos);
+                            
+                            Follow_Pointer(save_pos);
+                            string panel_right <name = "Right Panel ID">;
+                            FSeek(save_pos);
+                            
+                            uint32 display_difficulty <name = "Display Difficulty">; // Actual difficulty is +1
+                            uint32 cpu_level <name = "CPU Level">; // Difficulty setting for CPU (separate from display_difficulty)
+                            
+                            Follow_Pointer(save_pos);
+                            string stage_id <name = "Stage ID">;
+                            FSeek(save_pos);
+                            
+                            uint64 unk;
+                            uint64 first_speak <name = "First to Speak">; // Determines which Player speaks first (0=Player; 1=Enemy)
+                        } BasicInfo <
+                            name = "General Information", 
+                            read = Str("%s Panel | %d Stars | %dG | %s", Get_Panel_Type(type), cpu_level + 1, gold_reward, stage_id)
+                        >;
+                        
+                        struct {
+                            Follow_Pointer(save_pos);
+                            string player_id <name = "Player ID">;
+                            FSeek(save_pos);
+                            
+                            Follow_Pointer(save_pos);
+                            string player_assist_id <name = "Player Assist ID">;
+                            FSeek(save_pos);
+                            
+                            Follow_Pointer(save_pos);
+                            string player_btlst <name = "Player Start Dialogue">;
+                            FSeek(save_pos);
+                            
+                            Follow_Pointer(save_pos);
+                            string panel_string_14;
+                            FSeek(save_pos);
+                            
+                            Follow_Pointer(save_pos);
+                            string player_btlwin <name = "Player Win Dialogue">;
+                            FSeek(save_pos);
+                        } PlayerInfo <
+                            name = "Player Information"
+                        >;
+                            
+                        struct {
+                            Follow_Pointer(save_pos);
+                            string enemy_id <name = "Enemy ID">;
+                            FSeek(save_pos);
+                            
+                            Follow_Pointer(save_pos);
+                            string enemy_assist_id <name = "Enemy Assist ID">;
+                            FSeek(save_pos);
+                            
+                            Follow_Pointer(save_pos);
+                            string enemy_btlst <name = "Enemy Start Dialogue ID">;
+                            FSeek(save_pos);
+                            
+                            Follow_Pointer(save_pos);
+                            string panel_string_19;
+                            FSeek(save_pos);
+                            
+                            Follow_Pointer(save_pos);
+                            string enemy_btlwin <name = "Enemy Win Dialogue ID">;
+                            FSeek(save_pos);
+                        } EnemyInfo <
+                            name = "Enemy Information"
+                        >;
+                        
+                        struct {
+                            int32 special_rule_1 <name = "Special Rule 1">;
+                            int32 special_rule_2 <name = "Special Rule 2">;
+                            int32 special_rule_3 <name = "Special Rule 3">;
+                            int32 special_rule_4 <name = "Special Rule 4">; // #4 may not actually work in ASBR
+                        } SpecialRules <name = "Special Rules", read = Str("%d, %d, %d, %d", special_rule_1, special_rule_2, special_rule_3, special_rule_4)>;
+                
+                        struct {
+                            struct {
+                                int32 mission_1_condition <name = "Mission 1 Condition">;
+                                uint32 unk;
+        
+                                Follow_Pointer(save_pos);
+                                string mission_1_reward <name = "Mission 1 Reward ID">;
+                                FSeek(save_pos);
+        
+                                uint64 mission_1_gold <name = "Mission 1 Gold Reward">;
+                            } Mission1 <name = "Secret Mission 1">;
+                    
+                            struct {
+                                int32 mission_2_condition <name = "Mission 2 Condition">;
+                                uint32 unk;
+                                
+                                Follow_Pointer(save_pos);
+                                string mission_2_reward <name = "Mission 2 Reward ID">;
+                                FSeek(save_pos);
+        
+                                uint64 Mission2Gold <name = "Mission 2 Gold Reward">;
+                            } Mission2 <name = "Secret Mission 2">;
+                
+                            struct {
+                                int32 mission_3_condition <name = "Mission 3 Condition">;
+                                uint32 unk;
+        
+                                Follow_Pointer(save_pos);
+                                string mission_3_reward <name = "Mission 3 Reward ID">;
+                                FSeek(save_pos);
+        
+                                uint64 mission_3_gold <name = "Mission 3 Gold Reward">;
+                            } Mission3 <name = "Secret Mission 3">;
+                    
+                            struct {
+                                int32 mission_4_condition <name = "Mission 4 Condition">;
+                                uint32 unk;
+        
+                                Follow_Pointer(save_pos);
+                                string mission_4_reward <name = "Mission 4 Reward ID">;
+                                FSeek(save_pos);
+        
+                                uint64 mission_4_gold <name = "Mission 4 Gold Reward">;
+                            } Mission4 <name = "Secret Mission 4">;
+                
+                        } Missions <read = "Secret Missions">;
+                        
+                        struct {
+                            uint32 unk;
+                            uint32 unk;
+                            uint32 unk;
+                        } UNKNOWNS <read = "Likely Useless">;
+        
+                        uint32 total_panel_index <name = "Total Panel Index">;
+        
+                    } Panel <read = Str("%s vs %s", PlayerInfo.player_id, EnemyInfo.enemy_id)>;
+                }
+            } Page <read = Str("Part %d", Panel[0].BasicInfo.part)>;
+        }
+    } Entries;
+} MainModeParam <name = "MainModeParam",
+    comment = "Information for the All-Star Battle Mode panels.">;
+
+/** ↑ DEFINITIONS ↑ */
+
+#ifndef KOJO_XFBIN_BT
+    BigEndian();
+    uint32 size <name = "Size">;
+    MainModeParam t_MainModeParam <open = true>;
+#endif // KOJO_XFBIN_BT
+
+#endif // KOJO_NUCC_MAINMODEPARAM_BT

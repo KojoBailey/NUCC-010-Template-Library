@@ -1,0 +1,73 @@
+//------------------------------------------------
+//--- 010 Editor v14.0.1 Binary Template
+//
+//      File: prm_mot.bt
+//   Authors: Kojo Bailey
+//  Git Repo: https://github.com/KojoBailey/NUCC-010-Template-Library/
+//   Version: 1.0.0
+//   Purpose: Parsing CyberConnect2 NUCC prm_mot files for easy hex editing.
+//  Category: Game
+//   History: 
+//      1.0.0 [2024/05/XX] Initial release.
+//
+//--- For more info, refer to README.md
+//------------------------------------------------
+
+#ifndef KOJO_NUCC_PRM_MOT_BT
+#define KOJO_NUCC_PRM_MOT_BT
+
+#ifdef KOJO_XFBIN_BT
+    #include "All-Star Battle R/asbr.bt"
+#else
+    #include "asbr.bt"
+    #define Hide_Pointers true
+#endif // KOJO_XFBIN_BT
+
+/** ↓ DEFINITIONS ↓ */
+
+typedef struct {
+    LittleEndian();
+    uint32 version <name = "Version">;
+    char idfk[32];
+    uint32 count <name = "Entry Count">;
+
+    local int i;
+    for (i = 0; i < count; i++) {
+        struct {
+            char type[32] <name = "Animation Type">; // ?
+            char name[32] <name = "Animation Name">;
+            uint32 unk;
+            uint32 enable_face_animation;
+            uint32 no_frame_skip;
+            uint32 fix_position;
+            ubyte padding[12];
+            ubyte padding2[8];
+            uint32 frame_skip;
+            uint32 unk;
+            uint32 some_count;
+            ubyte padding3[40];
+            uint32 file_id;
+            
+            struct {
+                local int j;
+                for (j = 0; j < some_count; j++) {
+                    struct {
+                        ubyte unk[200];
+                    } Another_Entry;  
+                }
+            } Other_Entries;
+        } Entry <read = name>;
+    }
+
+} prm_mot <name = "prm_mot",
+    comment = "">;
+
+/** ↑ DEFINITIONS ↑ */
+
+#ifndef KOJO_XFBIN_BT
+    BigEndian();
+    uint32 size <name = "Size">;
+    prm_mot t_prm_mot <open = true>;
+#endif // KOJO_XFBIN_BT
+
+#endif // KOJO_NUCC_PRM_MOT_BT

@@ -5,6 +5,7 @@
         "chrono": "c",
         "system_error": "c",
         "xlocale": "c",
-        "istream": "c"
+        "istream": "c",
+        "prm_mot": "c"
     }
 }

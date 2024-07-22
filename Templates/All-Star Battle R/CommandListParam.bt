@@ -1,0 +1,94 @@
+//------------------------------------------------
+//--- 010 Editor v14.0.1 Binary Template
+//
+//      File: PlayerColorParam.bt
+//   Authors: Kojo Bailey
+//  Git Repo: https://github.com/KojoBailey/NUCC-010-Template-Library/
+//   Version: 1.0.0
+//   Purpose: Parsing CyberConnect2 NUCC PlayerColorParam files for easy hex editing.
+//  Category: Game
+//   History: 
+//      1.0.0 [2024/04/22] Initial release.
+//
+//--- For more info, refer to README.md
+//------------------------------------------------
+
+#ifndef KOJO_NUCC_COMMANDLISTPARAM_BT
+#define KOJO_NUCC_COMMANDLISTPARAM_BT
+
+#ifdef KOJO_XFBIN_BT
+    #include "All-Star Battle R/asbr.bt"
+#else
+    #include "asbr.bt"
+    #define Hide_Pointers true
+#endif // KOJO_XFBIN_BT
+
+/** ↓ DEFINITIONS ↓ */
+
+enum<uint64> Type {
+    UNK = 0,
+    SKL = 1,
+    HHA = 2,
+    GHA = 3,
+    BTLCMD_TH = 5,
+    BTLCMD = 6,
+    SKL_02 = 7
+};
+
+typedef struct {
+    LittleEndian();
+    uint32 version <name = "Version">;
+    uint32 count <name = "Entry Count">;
+    uint64 first_pointer <name = "First Pointer", comment = "Useful for leaving notes.">;
+    char notes[first_pointer - 8] <name = "Notes", comment = "Note length depends on size of First Pointer.">;
+
+    struct {
+        local int i;
+        local uint64 save_pos;
+        for (i = 0; i < count; i++) {
+            struct {
+                uint64 pointer <hidden = Hide_Pointers>;
+                FSeek((save_pos = FTell()) + pointer - 8);
+                string char_id <name = "Character ID">;
+                FSeek(save_pos);
+    
+                Type type <name = "Move Type">;
+    
+                uint64 pointer <hidden = Hide_Pointers>;
+                FSeek((save_pos = FTell()) + pointer - 8);
+                string unk2;
+                FSeek(save_pos);
+    
+                uint64 pointer <hidden = Hide_Pointers>;
+                FSeek((save_pos = FTell()) + pointer - 8);
+                string unk3;
+                FSeek(save_pos);
+    
+                uint64 pointer <hidden = Hide_Pointers>;
+                FSeek((save_pos = FTell()) + pointer - 8);
+                string unk4;
+                FSeek(save_pos);
+                
+                uint32 unk5;
+                uint32 unk6;
+                uint32 unk7;
+                uint32 unk8;
+                uint32 unk9;
+                uint32 unk10;
+                uint32 unk11;
+                int32 unk12;
+            } Entry <read = Str("%s: %s", char_id, unk3)>;
+        }
+    } Entries;
+} CommandListParam <name = "CommandListParam",
+    comment = "Command list information.">;
+
+/** ↑ DEFINITIONS ↑ */
+
+#ifndef KOJO_XFBIN_BT
+    BigEndian();
+    uint32 size <name = "Size">;
+    CommandListParam t_CommandListParam <open = true>;
+#endif // KOJO_XFBIN_BT
+
+#endif // KOJO_NUCC_COMMANDLISTPARAM_BT

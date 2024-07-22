@@ -52,40 +52,42 @@ struct nuccChunk(int i) {
 
         define_map(map_index);
         
-        switch (type) {
-            case "nuccChunkPage":
-                SetBackColor(COL_ORANGE);
-                nuccPage t_nuccPage <name = "nuccPage", read = nuccPageREAD(),
-                    comment = "Marks the end of a page of chunks. Something to do with nuccClumps.">;
-                break;
-            case "nuccChunkBinary":
-                SetBackColor(COL_ORANGE);
-                nuccBinary t_nuccBinary(path) <name = "nuccBinary",
-                    comment = "Stores miscellaneous binary data, including formats like XML.">;
-                break;
-            case "nuccChunkTexture":
-                SetBackColor(COL_BLUE);
-                nuccTexture t_nuccTexture <name = "nuccTexture", read = nuccTextureREAD(),
-                    comment = "Stores NUCC textures, like NUT, but can also store uncontained images.">;
-                break;
-            case "nuccChunkAnm":
-                nuccAnm t_nuccAnm <comment = "Stores animation data, 2D and 3D.">;
-                break;
-            case "nuccChunkCamera":
-                SetBackColor(COL_BLUE);
-                nuccCamera t_nuccCamera <name = "nuccCamera", read = focal_length,
-                    comment = "Something camera-related.">;
-                break;
-            case "nuccChunkNub":
-                SetBackColor(COL_LIGHT_PINK);
-                nuccNub t_nuccNub <name = "nuccNub",
-                    comment = "Stores NUB audio data.">;
-                break;
-            case "nuccChunkNull": break; // Removes annoying empty struct warnings.
-            default: 
-                SetBackColor(COL_DARK_RED);
-                nuccUnknown t_nuccUnknown(size) <name = "nuccUnknown",
-                    comment = "Currently unsupported.">;
+        if (size > 0) {
+            switch (type) {
+                case "nuccChunkPage":
+                    SetBackColor(COL_ORANGE);
+                    nuccPage t_nuccPage <name = "nuccPage", read = nuccPageREAD(),
+                        comment = "Marks the end of a page of chunks. Something to do with nuccClumps.">;
+                    break;
+                case "nuccChunkBinary":
+                    SetBackColor(COL_ORANGE);
+                    nuccBinary t_nuccBinary(path) <name = "nuccBinary",
+                        comment = "Stores miscellaneous binary data, including formats like XML.">;
+                    break;
+                case "nuccChunkTexture":
+                    SetBackColor(COL_BLUE);
+                    nuccTexture t_nuccTexture <name = "nuccTexture", read = nuccTextureREAD(),
+                        comment = "Stores NUCC textures, like NUT, but can also store uncontained images.">;
+                    break;
+                case "nuccChunkAnm":
+                    nuccAnm t_nuccAnm <comment = "Stores animation data, 2D and 3D.">;
+                    break;
+                case "nuccChunkCamera":
+                    SetBackColor(COL_BLUE);
+                    nuccCamera t_nuccCamera <name = "nuccCamera", read = focal_length,
+                        comment = "Something camera-related.">;
+                    break;
+                case "nuccChunkNub":
+                    SetBackColor(COL_LIGHT_PINK);
+                    nuccNub t_nuccNub <name = "nuccNub",
+                        comment = "Stores NUB audio data.">;
+                    break;
+                case "nuccChunkNull": break; // Removes annoying empty struct warnings.
+                default: 
+                    SetBackColor(COL_DARK_RED);
+                    nuccUnknown t_nuccUnknown(size) <name = "nuccUnknown",
+                        comment = "Currently unsupported.">;
+            }
         }
     } else {
         type = "nuccChunkIndex";

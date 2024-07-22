@@ -17,6 +17,10 @@ typedef struct {
 
     // NUT t_NUT;
     byte data[size] <name = "Data">;
-} nuccTexture;
+} nuccTexture <name = "nuccTexture">;
+
+#ifndef KOJO_XFBIN_BT
+    nuccTexture t_nuccTexture;
+#endif
 
 #endif // KOJO_NUCC_TEXTURE_BT

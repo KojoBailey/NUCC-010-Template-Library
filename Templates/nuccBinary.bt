@@ -2,7 +2,9 @@
 #define KOJO_NUCC_BINARY_BT
 
 #include "All-Star Battle R/PlayerColorParam.bt"
+#include "All-Star Battle R/MainModeParam.bt"
 #include "All-Star Battle R/sndcmnparam.bt"
+#include "All-Star Battle R/prm_load.bt"
 
 /** Replaces any version numbers with "XXX", 
  *  for easier string comparison.
@@ -25,6 +27,7 @@ string regex_path_version(string path) {
 string get_binary_type(string path) {
     switch (regex_path_version(path)) {
         case "PlayerColorParam.bin": return "PlayerColorParam";
+        case "MainModeParam.bin": return "xainModeParam";
         case "cmnparam/bin/XXX/battle.bin": return "sndcmnparam";
         case "cmnparam/bin/XXX/commse0.bin": return "sndcmnparam";
         case "cmnparam/bin/XXX/gimmick.bin": return "sndcmnparam";
@@ -49,21 +52,30 @@ struct nuccBinary(string path) {
     uint32 size <name = "Size">;
     local uint64 save_pos = FTell();
     SetBackColor(COL_DARK_RED);
-    
-    switch (get_binary_type(path)) {
-        case "PlayerColorParam":
-            PlayerColorParam t_PlayerColorParam;
-            break;
-        case "sndcmnparam":
-            sndcmnparam t_sndcmnparam;
-            break;
-        case "pldata":
-            pldata t_pldata;
-            break;
-        default:
-            byte data[size] <name = "Unrecognised Data",
-                comment = "This template library doesn't currently support this data.">;
+
+    if (SubStr(name, 6) == "prm_load") {
+        prm_load t_prm_load;
+        break;
+    } else {
+        switch (get_binary_type(path)) {
+            case "PlayerColorParam":
+                PlayerColorParam t_PlayerColorParam;
+                break;
+            case "MainModeParam":
+                MainModeParam t_MainModeParam;
+                break;
+            case "sndcmnparam":
+                sndcmnparam t_sndcmnparam;
+                break;
+            case "pldata":
+                pldata t_pldata;
+                break;
+            default:
+                byte data[size] <name = "Unrecognised Data",
+                    comment = "This template library doesn't currently support this data.">;
+        }
     }
+
     FSeek(save_pos + size);
 };
 
