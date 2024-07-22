@@ -27,7 +27,7 @@ string regex_path_version(string path) {
 string get_binary_type(string path) {
     switch (regex_path_version(path)) {
         case "PlayerColorParam.bin": return "PlayerColorParam";
-        case "MainModeParam.bin": return "xainModeParam";
+        case "MainModeParam.bin": return "MainModeParam";
         case "cmnparam/bin/XXX/battle.bin": return "sndcmnparam";
         case "cmnparam/bin/XXX/commse0.bin": return "sndcmnparam";
         case "cmnparam/bin/XXX/gimmick.bin": return "sndcmnparam";
