@@ -23,7 +23,7 @@
     #define Hide_Pointers true
 #endif // KOJO_XFBIN_BT
 
-/** ↓ DEFINITIONS ↓ */
+/** <<< DEFINITIONS >>> */
 
 enum<byte> Tint {
     TA = 0, TB, TC, TD, TE, TF
@@ -102,8 +102,6 @@ typedef struct {
     } Entries;
 } PlayerColorParam <name = "PlayerColorParam",
     comment = "Colours for the Character Select costume/tint select menu.">;
-
-/** ↑ DEFINITIONS ↑ */
 
 #ifndef KOJO_XFBIN_BT
     BigEndian();

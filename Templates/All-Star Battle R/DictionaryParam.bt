@@ -1,0 +1,115 @@
+//------------------------------------------------
+//--- 010 Editor v15.0 Binary Template
+//
+//      File: DictionaryParam.bt
+//   Authors: Kojo Bailey
+//  Git Repo: https://github.com/KojoBailey/NUCC-010-Template-Library/
+//   Version: 1.0.0
+//   Purpose: Parsing CyberConnect2 NUCC DictionaryParam files for easy hex editing.
+//  Category: Game
+//   History: 
+//      1.0.0 [2024/XX/XX] Initial release.
+//
+//--- For more info, refer to README.md
+//------------------------------------------------
+
+#ifndef KOJO_NUCC_DICTIONARYPARAM_BT
+#define KOJO_NUCC_DICTIONARYPARAM_BT
+
+#ifdef KOJO_XFBIN_BT
+    #include "All-Star Battle R/asbr.bt"
+#else
+    #include "asbr.bt"
+    #include "../hash.bt"
+    #define Hide_Pointers true
+#endif // KOJO_XFBIN_BT
+
+/** <<< DEFINITIONS >>> */
+
+typedef struct {
+    LittleEndian();
+    uint32 version <name = "Version">;
+    uint32 count <name = "Entry Count">;
+    uint64 first_pointer <name = "First Pointer", comment = "Useful for leaving notes.">;
+    char notes[first_pointer - 8] <name = "Notes", comment = "Note length depends on size of First Pointer.">;
+
+    struct {
+        local uint i;
+        local uint64 save_pos;
+        for (i = 0; i < count; i++) {
+            struct {
+                uint64 pointer <name = "Pointer", hidden = Hide_Pointers>;
+                save_pos = FTell();
+                FSeek(save_pos + pointer - 8);
+                string animation <name = "Character ID">;
+                FSeek(save_pos);
+                
+                uint64 pointer <name = "Pointer", hidden = Hide_Pointers>;
+                save_pos = FTell();
+                FSeek(save_pos + pointer - 8);
+                string panel <name = "ASB Mode Panel", comment = "Complete this panel to unlock this entry.">;
+                FSeek(save_pos);
+                
+                uint64 pointer <name = "Pointer", hidden = Hide_Pointers>;
+                save_pos = FTell();
+                FSeek(save_pos + pointer - 8);
+                string title <name = "Title", comment = ASBR_hash_string(this, 15)>;
+                FSeek(save_pos);
+                
+                uint64 pointer <name = "Pointer", hidden = Hide_Pointers>;
+                save_pos = FTell();
+                FSeek(save_pos + pointer - 8);
+                string header <name = "Dictionary Header">;
+                FSeek(save_pos);
+                
+                uint32 unk1;
+                uint32 unk2;
+                uint32 unk3;
+                uint32 unk4;
+                uint32 unk5;
+                uint32 unk6;
+                uint32 unk7;
+                uint32 unk8; // 1 for patch230 (latest version?)
+                uint32 unk9 <hidden = true>; // Always 0
+                uint32 unk10 <hidden = true>; // Always 0
+                uint32 unk11 <hidden = true>; // Always 0
+                uint32 unk12 <hidden = true>; // Always 0
+                uint32 unk13;
+                uint32 unk14;
+                uint32 unk15;
+                uint32 unk16 <hidden = true>; // Always 0
+                uint32 unk17 <hidden = true>; // Always 0
+                uint32 unk18 <hidden = true>; // Always 0
+                uint32 unk19;
+                uint32 unk20 <hidden = true>; // Always 0
+                
+                uint64 pointer <name = "Pointer", hidden = Hide_Pointers>;
+                save_pos = FTell();
+                FSeek(save_pos + pointer - 8);
+                string dmy <name = "DMY">;
+                FSeek(save_pos);
+                
+                uint32 dlc_id <name = "DLC ID">;
+                uint32 patch <name = "Patch Version">;
+                uint32 unk21; // When 4, missing panel ID
+                uint32 unk22 <hidden = true>; // Always 1
+                uint32 padding <hidden = true>; // Always FFFFFFFF
+                uint32 unk24 <hidden = true>; // Always 0
+                uint32 unk25 <hidden = true>; // Always 0
+                uint32 unk26 <hidden = true>; // Always 0
+                uint32 unk27 <hidden = true>; // Always 0
+                uint32 unk28 <hidden = true>; // Always 0
+                uint64 index <name = "Index">;
+            } Entry <read = Str("%d : %d", index, unk1)>;
+        }
+    } Entries;
+} DictionaryParam <name = "Dictionary Param",
+    comment = "Data for the JoJo Glossary.">;
+
+#ifndef KOJO_XFBIN_BT
+    BigEndian();
+    uint32 size <name = "Size">;
+    DictionaryParam t_DictionaryParam <open = true>;
+#endif // KOJO_XFBIN_BT
+
+#endif // KOJO_NUCC_DICTIONARYPARAM_BT

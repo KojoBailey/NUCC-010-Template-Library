@@ -20,7 +20,7 @@
     #include "All-Star Battle R/asbr.bt"
 #else
     #include "asbr.bt"
-    #define Hide_Pointers true
+    #define Hide_Pointers false
 #endif // KOJO_XFBIN_BT
 
 /** ↓ DEFINITIONS ↓ */

@@ -1,6 +1,10 @@
 #ifndef KOJO_NUCC_NUB_BT
 #define KOJO_NUCC_NUB_BT
 
+#ifndef KOJO_XFBIN_BT
+    #include "functions.bt"
+#endif // KOJO_XFBIN_BT
+
 typedef struct {
     uint32 unk;
     uint32 unk;
@@ -27,6 +31,35 @@ typedef struct {
     align_by(4);
     uint32 unk;
 } BINF <name = "Binary File", read = unk_str>;
+
+typedef struct {
+    local int j;
+    for (j = 0; !FEof(); j++) {
+        struct {
+            BigEndian();
+            char magic[4] <name = "Container Format">;
+            uint32 size <name = "Size">;
+            if (size > 0) {
+                char is14[4] <name = "Audio Format">;
+                struct {
+                    char sfmt[4] <name = "Header">;
+                    uint32 size <name = "Format Size">;
+                    uint32 channel_count <name = "Channel Count">;
+                    uint32 sample_rate <name = "Sample Rate [Hz]">;
+                    uint32 sample_size <name = "Sample Size">;
+                    uint32 padding <name = "Padding">;
+                    uint16 inserted_samples <name = "Inserted Samples">;
+                    uint16 appended_samples <name = "Appended Samples">;
+                } format <name = "Format Info">;
+                struct {
+                    char sdat[4] <name = "Header">;
+                    uint32 size <name = "Data Size">;
+                    ubyte data[size] <name = "Data">;
+                } data <name = "Audio Data", open = true>;
+            }
+        } Entry;
+    }
+} PACK <name = "Pack Data">;
 
 typedef struct {
     LittleEndian();
@@ -57,7 +90,7 @@ typedef struct {
             switch (title) {
                 case "PROP": PROP t_PROP; break;
                 case "BINF": BINF t_BINF; break;
-                case "PACK": byte files[size] <name = "File Data">; break;
+                case "PACK": PACK t_PACK; break;
                 default: FSkip(size);
             }
         } section <name = "Section", read = title>;
@@ -67,8 +100,11 @@ typedef struct {
 struct nuccNub {
     BigEndian();
     uint32 size <name = "Size">;
-
     NUB t_NUB;
 };
+
+#ifndef KOJO_XFBIN_BT
+    nuccNub t_nuccNub <open = true>;
+#endif // KOJO_XFBIN_BT
 
 #endif // KOJO_NUCC_NUB_BT

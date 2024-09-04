@@ -1,0 +1,101 @@
+//------------------------------------------------
+//--- 010 Editor v15.0 Binary Template
+//
+//      File: SpeakingLineParam.bt
+//   Authors: Kojo Bailey
+//  Git Repo: https://github.com/KojoBailey/NUCC-010-Template-Library/
+//   Version: 1.0.0
+//   Purpose: Parsing CyberConnect2 NUCC SpeakingLineParam files for easy hex editing.
+//  Category: Game
+//   History: 
+//      1.0.0 [2024/XX/XX] Initial release.
+//
+//--- For more info, refer to README.md
+//------------------------------------------------
+
+#ifndef KOJO_NUCC_SPEAKINGLINEPARAM_BT
+#define KOJO_NUCC_SPEAKINGLINEPARAM_BT
+
+#ifdef KOJO_XFBIN_BT
+    #include "All-Star Battle R/asbr.bt"
+#else
+    #include "asbr.bt"
+    #include "../hash.bt"
+    #define Hide_Pointers true
+#endif // KOJO_XFBIN_BT
+
+/** <<< DEFINITIONS >>> */
+
+enum Interaction_Type {
+    UNKNOWN = 0,
+    BATTLE_START = 1,
+    ROUND_WIN = 2,
+    BATTLE_WIN = 3
+};
+
+enum Bool {
+    _FALSE = 0,
+    _TRUE = 1   
+};
+
+string get_interaction_type(Interaction_Type interaction_type) {
+    switch (interaction_type) {
+        case BATTLE_START: return "Battle Start";
+        case ROUND_WIN:    return "Round Win";
+        case BATTLE_WIN:   return "Battle Win";
+        default: return "Unknown";   
+    }
+}
+
+typedef struct {
+    LittleEndian();
+    uint32 version <name = "Version">;
+    uint32 count <name = "Entry Count">;
+    uint64 first_pointer <name = "First Pointer", comment = "Useful for leaving notes.">;
+    char notes[first_pointer - 8] <name = "Notes", comment = "Note length depends on size of First Pointer.">;
+
+    struct {
+        local uint i;
+        local uint64 save_pos;
+        for (i = 0; i < count; i++) {
+            struct {
+                Interaction_Type interaction_type <name = "Interaction Type">;
+                Bool is_round_win <name = "Is Round Win?">;
+                
+                uint64 pointer <name = "Pointer", hidden = Hide_Pointers>;
+                save_pos = FTell();
+                FSeek(save_pos + pointer - 8);
+                string character_1 <name = "Character 1 ID">;
+                FSeek(save_pos);
+                
+                uint64 pointer <name = "Pointer", hidden = Hide_Pointers>;
+                save_pos = FTell();
+                FSeek(save_pos + pointer - 8);
+                string character_2 <name = "Character 2 ID">;
+                FSeek(save_pos);
+                
+                uint64 pointer <name = "Pointer", hidden = Hide_Pointers>;
+                save_pos = FTell();
+                FSeek(save_pos + pointer - 8);
+                string dialogue_1 <name = "Character 1 Dialogue">;
+                FSeek(save_pos);
+                
+                uint64 pointer <name = "Pointer", hidden = Hide_Pointers>;
+                save_pos = FTell();
+                FSeek(save_pos + pointer - 8);
+                string dialogue_2 <name = "Character 2 Dialogue">;
+                FSeek(save_pos);
+            } Entry <read = get_interaction_type(interaction_type),
+                comment = Str("%s ] vs [ %s", get_char_name(character_1), get_char_name(character_2))>;
+        }
+    } Entries;
+} SpeakingLineParam <name = "Speaking Line Param",
+    comment = "Data for the JoJo Glossary.">;
+
+#ifndef KOJO_XFBIN_BT
+    BigEndian();
+    uint32 size <name = "Size">;
+    SpeakingLineParam t_SpeakingLineParam <open = true>;
+#endif // KOJO_XFBIN_BT
+
+#endif // KOJO_NUCC_SPEAKINGLINEPARAM_BT
